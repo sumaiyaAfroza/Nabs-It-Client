@@ -16,7 +16,6 @@ const CreateNoticePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
-
   const {
     register,
     handleSubmit,
