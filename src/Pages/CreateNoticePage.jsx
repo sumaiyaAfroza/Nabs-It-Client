@@ -321,6 +321,42 @@ const CreateNoticePage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Upload Attachments (optional)
             </label>
+            <input
+  type="file"
+  accept="image/*"
+  {...register('image')}
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
+  }}
+  className="hidden"
+  id="image"
+/>
+
+<label
+  htmlFor="image"
+  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer block"
+>
+  {imagePreview ? (
+     <img
+      src={imagePreview}
+      alt="Preview"
+      className="max-h-48 mx-auto rounded-lg object-contain"
+    />
+  ) : (
+    <>
+      <Upload className="w-10 h-10 text-teal-500 mx-auto mb-3" />
+      <p className="text-sm text-gray-600 mb-1">
+        Upload image or click here
+      </p>
+      <p className="text-xs text-teal-600">jpg, png</p>
+    </>
+  )}
+</label>
+
+
 
             {/* <input
               type="file"
@@ -330,7 +366,7 @@ const CreateNoticePage = () => {
               id="image"
             /> */}
 
-            <label
+            {/* <label
               htmlFor="image"
               className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-400 transition cursor-pointer block"
             >
@@ -339,7 +375,7 @@ const CreateNoticePage = () => {
                 Upload image or click here
               </p>
               <p className="text-xs text-teal-600">jpg, png</p>
-            </label>
+            </label> */}
           </div>
 
           {/* <div>
