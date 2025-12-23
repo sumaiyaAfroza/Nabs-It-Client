@@ -15,6 +15,7 @@ const CreateNoticePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [documents, setDocuments] = useState([]);
 
   const {
     register,
@@ -63,20 +64,6 @@ const CreateNoticePage = () => {
       setIsSubmitting(false);
     }
   };
-
-  // const onSubmit = async (data) => {
-  //     setIsSubmitting(true);
-  //     try {
-  //         const response = await axios.post('/notices', data);
-  //         toast.success(response.data.message);
-  //         setShowSuccess(true);
-  //         reset();
-  //     } catch (error) {
-  //         toast.error(error.response?.data?.message || 'Failed to create notice');
-  //     } finally {
-  //         setIsSubmitting(false);
-  //     }
-  // };
 
   return (
     <div>
@@ -316,66 +303,95 @@ const CreateNoticePage = () => {
           </div>
 
           {/* Upload Attachments - OPTIONAL */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Attachments (optional)
-            </label>
-            <input
-  type="file"
-  accept="image/*"
-  {...register('image')}
-  onChange={(e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  }}
-  className="hidden"
-  id="image"
-/>
+          {/* Upload Attachments (optional) */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Upload Attachments (optional)
+  </label>
 
-<label
-  htmlFor="image"
-  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer block"
->
-  {imagePreview ? (
-     <img
-      src={imagePreview}
-      alt="Preview"
-      className="max-h-48 mx-auto rounded-lg object-contain"
-    />
-  ) : (
-    <>
-      <Upload className="w-10 h-10 text-teal-500 mx-auto mb-3" />
-      <p className="text-sm text-gray-600 mb-1">
-        Upload image or click here
-      </p>
-      <p className="text-xs text-teal-600">jpg, png</p>
-    </>
+  {/* Hidden file input */}
+  <input
+    type="file"
+    id="attachments"
+    multiple
+    accept="image/*,.pdf"
+    {...register("image")}
+    className="hidden"
+    onChange={(e) => {
+      const files = Array.from(e.target.files);
+
+      files.forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          setImagePreview(URL.createObjectURL(file));
+        } else if (file.type === "application/pdf") {
+          setDocuments((prev) => [...prev, file]);
+        }
+      });
+    }}
+  />
+
+  {/* Upload Box */}
+  <label
+    htmlFor="attachments"
+    className="border-2 border-dashed border-teal-400 rounded-xl p-8 text-center cursor-pointer block hover:bg-teal-50 transition"
+  >
+    {imagePreview ? (
+      <div className="relative inline-block">
+        <img
+          src={imagePreview}
+          alt="Preview"
+          className="max-h-40 mx-auto rounded-lg object-contain"
+        />
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setImagePreview(null);
+          }}
+          className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    ) : (
+      <>
+        <Upload className="w-10 h-10 text-teal-500 mx-auto mb-2" />
+        <p className="text-sm text-gray-700">
+          <span className="text-teal-600 font-medium">Upload</span> nominee profile image or drag and drop
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          Accepted File Type: jpg, png, pdf
+        </p>
+      </>
+    )}
+  </label>
+
+  {/* PDF list (Figma-style) */}
+  {documents.length > 0 && (
+    <div className="flex flex-wrap gap-3 mt-4">
+      {documents.map((file, index) => (
+        <div
+          key={index}
+          className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full text-sm"
+        >
+          <span className="text-gray-600">📎</span>
+          <span className="text-gray-700">{file.name}</span>
+          <button
+            type="button"
+            onClick={() =>
+              setDocuments((prev) =>
+                prev.filter((_, i) => i !== index)
+              )
+            }
+            className="text-gray-400 hover:text-red-500"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
+    </div>
   )}
-</label>
-
-
-
-            {/* <input
-              type="file"
-              accept="image/*"
-              {...register("image")}   ========================================image
-              className="hidden"
-              id="image"
-            /> */}
-
-            {/* <label
-              htmlFor="image"
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-400 transition cursor-pointer block"
-            >
-              <Upload className="w-10 h-10 text-teal-500 mx-auto mb-3" />
-              <p className="text-sm text-gray-600 mb-1">
-                Upload image or click here
-              </p>
-              <p className="text-xs text-teal-600">jpg, png</p>
-            </label> */}
-          </div>
+</div>
 
           {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
