@@ -32,7 +32,7 @@ const NoticeManagementTable = ({ filters }) => {
     // Toggle publish status
     const handleToggleStatus = async (id, currentStatus) => {
         try {
-            const response = await axios.patch(`/notices/${id}/status`, {
+            const response = await axios.patch(`/notice/${id}/status`, {
                 isPublished: !currentStatus,
             });
             toast.success(response.data.message);

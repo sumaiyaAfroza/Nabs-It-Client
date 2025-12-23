@@ -40,30 +40,67 @@ const CreateNoticePage = () => {
   return data.data.url;
 };
 
+const onSubmit = async (data) => {
+//   console.log("FORM DATA IMAGE:", data.image);
+  setIsSubmitting(true);
 
-  const onSubmit = async (data) => {
-    console.log('FORM DATA IMAGE:', data.image);
-    setIsSubmitting(true);
-    try {
-      let imageUrl = "";
-      if (data.image?.[0]) {
-        imageUrl = await uploadToImgBB(data.image[0]);
-      }
-      const noticeData = {
-        ...data,
-        image: imageUrl,
-        status: "published",
-      };
-      await axios.post("/notices", noticeData);
-      toast.success("Notice published successfully");
+  try {
+    let imageUrl = "";
+
+    if (data.image?.[0]) {
+      imageUrl = await uploadToImgBB(data.image[0]);
+    }
+
+    const noticeData = {
+      ...data,
+      image: imageUrl,
+      status: "published",
+    };
+
+    // 🔑 response ধরো
+    const res = await axios.post("/notice", noticeData);
+    console.log(res.data);
+
+    // ✅ ONLY backend success হলে modal
+    if (res.data?.success) {
       setShowSuccess(true);
       reset();
-    } catch (error) {
-      toast.error("Failed to create notice");
-    } finally {
-      setIsSubmitting(false);
+      setImagePreview(null);
+      setDocuments([]); // যদি docs state থাকে
+    } else {
+      toast.error("Notice publish failed");
     }
-  };
+  } catch (error) {
+    toast.error("Failed to create notice");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+//   const onSubmit = async (data) => {
+//     console.log('FORM DATA IMAGE:', data.image);
+//     setIsSubmitting(true);
+//     try {
+//       let imageUrl = "";
+//       if (data.image?.[0]) {
+//         imageUrl = await uploadToImgBB(data.image[0]);
+//       }
+//       const noticeData = {
+//         ...data,
+//         image: imageUrl,
+//         status: "published",
+//       };
+//       await axios.post("/notices", noticeData);
+//     //   toast.success("Notice published successfully");
+//       setShowSuccess(true);
+//       reset();
+//     } catch (error) {
+//       toast.error("Failed to create notice");
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
 
   return (
     <div>
