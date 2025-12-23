@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { ArrowLeft, Upload, X, AlertCircle } from "lucide-react";
 import useAxios from "../hooks/useAxios";
 import toast from "react-hot-toast";
-import SuccessModal from "../components/SuccessModal";
+import SuccessModal from "../components/SuccessModal.jsx";
 
 
 // console.log('IMGBB KEY:', import.meta.env.VITE_IMGBB_KEY);
@@ -393,18 +393,6 @@ const CreateNoticePage = () => {
   )}
 </div>
 
-          {/* <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Upload Attachments (optional)
-                        </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-400 transition">
-                            <Upload className="w-10 h-10 text-teal-500 mx-auto mb-3" />
-                            <p className="text-sm text-gray-600 mb-1">
-                                Upload narrative profile image or drag and drop
-                            </p>
-                            <p className="text-xs text-teal-600">Accepted File Type: jpg, png</p>
-                        </div>
-                    </div> */}
 
           {/* Policy Document */}
           <div className="flex items-center space-x-2 text-sm text-gray-600">
