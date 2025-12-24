@@ -15,7 +15,7 @@ const NoticeManagementTable = ({ filters }) => {
     const fetchNotices = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('/notices');
+            const response = await axios.get('/notice');
             setNotices(response.data.data || []);
         } catch (error) {
             toast.error('Failed to fetch notices');
@@ -25,6 +25,9 @@ const NoticeManagementTable = ({ filters }) => {
         }
     };
 
+
+
+    
     useEffect(() => {
         fetchNotices();
     }, []);
