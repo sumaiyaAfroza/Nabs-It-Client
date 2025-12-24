@@ -3,7 +3,7 @@ import React from 'react';
 
 
 const axiosInstance = axios.create({
-    baseURL: `https://nabs-it-server.vercel.app/`
+    baseURL: `https://nabs-it-server.vercel.app`
 })
 
 
