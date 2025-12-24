@@ -1,194 +1,427 @@
-import { useState, useEffect } from 'react';
-import { Eye, Edit2, MoreVertical, ToggleLeft, ToggleRight } from 'lucide-react';
-
-import toast from 'react-hot-toast';
-import useAxios from '../hooks/useAxios';
+import { useState, useEffect } from "react";
+import { Eye, Edit2, MoreVertical, ToggleLeft, ToggleRight } from "lucide-react";
+import toast from "react-hot-toast";
+import useAxios from "../hooks/useAxios";
 
 const NoticeManagementTable = ({ filters }) => {
-    const axios = useAxios()
-    const [notices, setNotices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+  const axios = useAxios();
 
-    // Fetch notices
-    const fetchNotices = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get('/notice');
-            setNotices(response.data.data || []);
-        } catch (error) {
-            toast.error('Failed to fetch notices');
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
+  /* ======================
+     FETCH NOTICES (FIXED)
+  ======================= */
+  const fetchNotices = async () => {
+    setLoading(true);
+    try {
+      const params = {};
 
+      // 🔥 STATUS FILTER (MAIN FIX)
+      if (filters.status === "published") {
+        params.status = "published";
+      } else if (filters.status === "draft") {
+        params.status = "draft";
+      }
 
-    
-    useEffect(() => {
-        fetchNotices();
-    }, []);
-
-    // Toggle publish status
-    const handleToggleStatus = async (id, currentStatus) => {
-        try {
-            const response = await axios.patch(`/notice/${id}/status`, {
-                isPublished: !currentStatus,
-            });
-            toast.success(response.data.message);
-            fetchNotices();
-        } catch (error) {
-            toast.error('Failed to update status');
-        }
-    };
-
-    // Pagination
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentNotices = notices.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(notices.length / itemsPerPage);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
+      const response = await axios.get("/notice", { params });
+      setNotices(response.data.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch notices");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  /* ======================
+     RE-FETCH ON FILTER CHANGE
+  ======================= */
+  useEffect(() => {
+    fetchNotices();
+  }, [filters.status]);
+
+  /* ======================
+     TOGGLE PUBLISH STATUS
+  ======================= */
+  const handleToggleStatus = async (id, currentStatus) => {
+    try {
+      const res = await axios.patch(`/notice/${id}/status`, {
+        isPublished: !currentStatus,
+      });
+
+      toast.success(res.data.message || "Status updated");
+      fetchNotices();
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
+
+  /* ======================
+     PAGINATION
+  ======================= */
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNotices = notices.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(notices.length / itemsPerPage);
+
+  if (loading) {
     return (
-        <div className="bg-white rounded-lg shadow-sm">
-            {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th className="px-6 py-3 text-left">
-                                <input type="checkbox" className="w-4 h-4 border-gray-300 rounded" />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Title
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Notice Type
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Departments/Individual
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Published On
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {currentNotices.map((notice) => (
-                            <tr key={notice._id} className="hover:bg-gray-50 transition">
-                                <td className="px-6 py-4">
-                                    <input type="checkbox" className="w-4 h-4 border-gray-300 rounded" />
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-800">
-                                    {notice.title}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">
-                                    {notice.noticeType || 'General / Company-W'}
-                                </td>
-                                <td className="px-6 py-4 text-sm">
-                                    <span className="text-blue-600">All Department</span>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">
-                                    15-Jun-2025
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center space-x-2">
-                                        {notice.isPublished ? (
-                                            <>
-                                                <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-700">
-                                                    Published
-                                                </span>
-                                                <button
-                                                    onClick={() => handleToggleStatus(notice._id, notice.isPublished)}
-                                                    className="focus:outline-none"
-                                                >
-                                                    <ToggleRight className="w-8 h-8 text-teal-500" />
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-600">
-                                                    Unpublished
-                                                </span>
-                                                <button
-                                                    onClick={() => handleToggleStatus(notice._id, notice.isPublished)}
-                                                    className="focus:outline-none"
-                                                >
-                                                    <ToggleLeft className="w-8 h-8 text-gray-400" />
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center space-x-3">
-                                        <button className="text-gray-600 hover:text-gray-800 transition">
-                                            <Eye className="w-5 h-5" />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-gray-800 transition">
-                                            <Edit2 className="w-5 h-5" />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-gray-800 transition">
-                                            <MoreVertical className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex items-center justify-center space-x-2 py-4 border-t border-gray-200">
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-                >
-                    ←
-                </button>
-
-                {[...Array(totalPages)].map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => setCurrentPage(index + 1)}
-                        className={`px-3 py-1 rounded text-sm transition ${
-                            currentPage === index + 1
-                                ? 'bg-blue-600 text-white'
-                                : 'border border-gray-300 hover:bg-gray-50'
-                        }`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-                >
-                    →
-                </button>
-            </div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
     );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm">
+      {/* TABLE */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-3">
+                <input type="checkbox" />
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Title
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Notice Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Department
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Published On
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                Actions
+              </th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-200">
+            {/* EMPTY STATE */}
+            {currentNotices.length === 0 && (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="text-center py-8 text-gray-500"
+                >
+                  No notices found
+                </td>
+              </tr>
+            )}
+
+            {currentNotices.map((notice) => (
+              <tr key={notice._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <input type="checkbox" />
+                </td>
+
+                <td className="px-6 py-4 text-sm">
+                  {notice.title}
+                </td>
+
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {notice.noticeType}
+                </td>
+
+                <td className="px-6 py-4 text-sm text-blue-600">
+                  {notice.targetDepartment}
+                </td>
+
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {notice.createdAt
+                    ? new Date(notice.createdAt).toLocaleDateString()
+                    : "—"}
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="flex items-center space-x-2">
+                    {notice.isPublished ? (
+                      <>
+                        <span className="px-3 py-1 text-xs rounded-full bg-teal-100 text-teal-700">
+                          Published
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleToggleStatus(
+                              notice._id,
+                              notice.isPublished
+                            )
+                          }
+                        >
+                          <ToggleRight className="w-7 h-7 text-teal-500" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="px-3 py-1 text-xs rounded-full bg-orange-100 text-orange-600">
+                          Unpublished
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleToggleStatus(
+                              notice._id,
+                              notice.isPublished
+                            )
+                          }
+                        >
+                          <ToggleLeft className="w-7 h-7 text-gray-400" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="flex space-x-3">
+                    <Eye className="w-5 h-5 cursor-pointer" />
+                    <Edit2 className="w-5 h-5 cursor-pointer" />
+                    <MoreVertical className="w-5 h-5 cursor-pointer" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center space-x-2 py-4">
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-blue-600 text-white"
+                : "border"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default NoticeManagementTable;
+
+
+
+// import { useState, useEffect } from 'react';
+// import { Eye, Edit2, MoreVertical, ToggleLeft, ToggleRight } from 'lucide-react';
+
+// import toast from 'react-hot-toast';
+// import useAxios from '../hooks/useAxios';
+
+// const NoticeManagementTable = ({ filters }) => {
+//     const axios = useAxios()
+//     const [notices, setNotices] = useState([]);
+//     const [loading, setLoading] = useState(true);
+//     const [currentPage, setCurrentPage] = useState(1);
+//     const itemsPerPage = 8;
+//     const [statusFilter, setStatusFilter] = useState('all'); // all | published | draft
+
+
+//     // Fetch notices
+// const fetchNotices = async () => {
+//   setLoading(true);
+//   try {
+//     const params = {};
+
+//     if (filters.status) {
+//       params.status = filters.status; // published | draft
+//     }
+
+//     const response = await axios.get("/notice", { params });
+//     setNotices(response.data.data || []);
+//   } catch (error) {
+//     toast.error("Failed to fetch notices");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+
+// useEffect(() => {
+//   fetchNotices();
+// }, [filters.status]);
+
+
+//     // Toggle publish status
+//     const handleToggleStatus = async (id, currentStatus) => {
+//         try {
+//             const response = await axios.patch(`/notice/${id}/status`, {
+//                 isPublished: !currentStatus,
+//             });
+//             toast.success(response.data.message);
+//             fetchNotices();
+//         } catch (error) {
+//             toast.error('Failed to update status');
+//         }
+//     };
+
+//     // Pagination
+//     const indexOfLastItem = currentPage * itemsPerPage;
+//     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+//     const currentNotices = notices.slice(indexOfFirstItem, indexOfLastItem);
+//     const totalPages = Math.ceil(notices.length / itemsPerPage);
+
+//     if (loading) {
+//         return (
+//             <div className="flex justify-center items-center h-64">
+//                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+//             </div>
+//         );
+//     }
+
+//     return (
+//         <div className="bg-white rounded-lg shadow-sm">
+    
+            
+
+//             {/* Table */}
+//             <div className="overflow-x-auto">
+//                 <table className="w-full">
+//                     <thead className="bg-gray-50 border-b border-gray-200">
+//                         <tr>
+//                             <th className="px-6 py-3 text-left">
+//                                 <input type="checkbox" className="w-4 h-4 border-gray-300 rounded" />
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Title
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Notice Type
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Departments/Individual
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Published On
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Status
+//                             </th>
+//                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+//                                 Actions
+//                             </th>
+//                         </tr>
+//                     </thead>
+//                     <tbody className="divide-y divide-gray-200">
+//                         {currentNotices.map((notice) => (
+//                             <tr key={notice._id} className="hover:bg-gray-50 transition">
+//                                 <td className="px-6 py-4">
+//                                     <input type="checkbox" className="w-4 h-4 border-gray-300 rounded" />
+//                                 </td>
+//                                 <td className="px-6 py-4 text-sm text-gray-800">
+//                                     {notice.title}
+//                                 </td>
+//                                 <td className="px-6 py-4 text-sm text-gray-600">
+//                                     {notice.noticeType || 'General / Company-W'}
+//                                 </td>
+//                                 <td className="px-6 py-4 text-sm">
+//                                     <span className="text-blue-600">All Department</span>
+//                                 </td>
+//                                 <td className="px-6 py-4 text-sm text-gray-600">
+//                                     15-Jun-2025
+//                                 </td>
+//                                 <td className="px-6 py-4">
+//                                     <div className="flex items-center space-x-2">
+//                                         {notice.isPublished ? (
+//                                             <>
+//                                                 <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-700">
+//                                                     Published
+//                                                 </span>
+//                                                 <button
+//                                                     onClick={() => handleToggleStatus(notice._id, notice.isPublished)}
+//                                                     className="focus:outline-none"
+//                                                 >
+//                                                     <ToggleRight className="w-8 h-8 text-teal-500" />
+//                                                 </button>
+//                                             </>
+//                                         ) : (
+//                                             <>
+//                                                 <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-600">
+//                                                     Unpublished
+//                                                 </span>
+//                                                 <button
+//                                                     onClick={() => handleToggleStatus(notice._id, notice.isPublished)}
+//                                                     className="focus:outline-none"
+//                                                 >
+//                                                     <ToggleLeft className="w-8 h-8 text-gray-400" />
+//                                                 </button>
+//                                             </>
+//                                         )}
+//                                     </div>
+//                                 </td>
+//                                 <td className="px-6 py-4">
+//                                     <div className="flex items-center space-x-3">
+//                                         <button className="text-gray-600 hover:text-gray-800 transition">
+//                                             <Eye className="w-5 h-5" />
+//                                         </button>
+//                                         <button className="text-gray-600 hover:text-gray-800 transition">
+//                                             <Edit2 className="w-5 h-5" />
+//                                         </button>
+//                                         <button className="text-gray-600 hover:text-gray-800 transition">
+//                                             <MoreVertical className="w-5 h-5" />
+//                                         </button>
+//                                     </div>
+//                                 </td>
+//                             </tr>
+//                         ))}
+//                     </tbody>
+//                 </table>
+//             </div>
+
+//             {/* Pagination */}
+//             <div className="flex items-center justify-center space-x-2 py-4 border-t border-gray-200">
+//                 <button
+//                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+//                     disabled={currentPage === 1}
+//                     className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+//                 >
+//                     ←
+//                 </button>
+
+//                 {[...Array(totalPages)].map((_, index) => (
+//                     <button
+//                         key={index}
+//                         onClick={() => setCurrentPage(index + 1)}
+//                         className={`px-3 py-1 rounded text-sm transition ${
+//                             currentPage === index + 1
+//                                 ? 'bg-blue-600 text-white'
+//                                 : 'border border-gray-300 hover:bg-gray-50'
+//                         }`}
+//                     >
+//                         {index + 1}
+//                     </button>
+//                 ))}
+
+//                 <button
+//                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+//                     disabled={currentPage === totalPages}
+//                     className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+//                 >
+//                     →
+//                 </button>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default NoticeManagementTable;
