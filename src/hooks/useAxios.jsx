@@ -1,14 +1,15 @@
 import axios from 'axios';
-import React from 'react';
-
 
 const axiosInstance = axios.create({
-    baseURL: `https://nabs-it-server.vercel.app`
-})
-
+  baseURL: 'https://nabs-it-client-bmmc.vercel.app',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
 
 const useAxios = () => {
-    return axiosInstance
+  return axiosInstance;
 };
 
 export default useAxios;
