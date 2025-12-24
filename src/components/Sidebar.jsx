@@ -10,12 +10,10 @@ import {
   FolderOpen,
   Bell,
   Activity,
-  FileText,
   User,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import logo from '../../public/logoo.png';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -25,20 +23,13 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 min-h-screen fixed left-0 top-0 bg-white">
-          <div className="p-6 ">
-        <div className="">
-          <img src={logo} alt="" />
-         
-        </div>
+      {/* Logo */}
+      <div className="p-6">
+        <img src="/logoo.png" alt="Nebs-IT Logo" className="w-28" />
       </div>
 
       <nav className="mt-4">
-        <SidebarItem
-          to="/"
-          label="Dashboard"
-          icon={LayoutDashboard}
-          active={isActive("/")}
-        />
+        <SidebarItem to="/" label="Dashboard" icon={LayoutDashboard} active={isActive("/")} />
 
         {/* Employee Dropdown */}
         <div>
@@ -47,7 +38,7 @@ const Sidebar = () => {
             className={`w-full flex items-center justify-between px-6 py-3 text-sm transition
               ${
                 location.pathname.startsWith("/employee")
-                  ? "bg-gray-100 text-gray-900 border-r-4 border-amber-600"
+                  ? "bg-gray-100 text-black border-r-4 border-amber-600"
                   : "text-gray-700 hover:bg-gray-100 hover:border-r-4 hover:border-amber-600"
               }`}
           >
@@ -55,18 +46,14 @@ const Sidebar = () => {
               <Users className="w-5 h-5" />
               <span>Employee</span>
             </div>
-            {employeeOpen ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
+            {employeeOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
 
           {employeeOpen && (
             <div className="ml-10 mt-1 space-y-1">
               <SubItem to="/employee/list" label="Employee List" />
               <SubItem to="/employee/add" label="Add Employee" />
-               <SubItem to="/employee/report" label="Performance Report" />
+              <SubItem to="/employee/report" label="Performance Report" />
               <SubItem to="/employee/history" label="Performance History" />
             </div>
           )}
@@ -85,7 +72,6 @@ const Sidebar = () => {
   );
 };
 
-
 const SidebarItem = ({ to, label, icon: Icon, active }) => (
   <Link
     to={to}
@@ -93,7 +79,7 @@ const SidebarItem = ({ to, label, icon: Icon, active }) => (
       ${
         active
           ? "bg-gray-100 text-black border-r-4 border-amber-600"
-          : "text-gray-700 hover:bg-gray-100 hover:border-r-3 hover:border-amber-600"
+          : "text-gray-700 hover:bg-gray-100 hover:border-r-4 hover:border-amber-600"
       }`}
   >
     <Icon className="w-5 h-5" />
@@ -108,12 +94,8 @@ const SubItem = ({ to, label }) => {
   return (
     <Link
       to={to}
-      className={`block px-3 py-2 text-sm rounded transition
-        ${
-          active
-            ? "text-amber-600 font-medium"
-            : "text-gray-600 hover:text-amber-600"
-        }`}
+      className={`block px-3 py-2 text-sm transition
+        ${active ? "text-amber-600 font-medium" : "text-gray-600 hover:text-amber-600"}`}
     >
       {label}
     </Link>
