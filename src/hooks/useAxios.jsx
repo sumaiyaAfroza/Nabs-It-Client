@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://nabs-it-server.vercel.app',
+  baseURL: 'https://nabs-it-server.vercel.app', // ✅ Correct backend URL
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
