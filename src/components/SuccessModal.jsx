@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const SuccessModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-
   if (!isOpen) return null;
-
-
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -24,7 +21,7 @@ const SuccessModal = ({ isOpen, onClose }) => {
           Notice Published Successfully
         </h2>
 
-       
+  
         <p className="text-sm text-gray-600 mb-8">
           Your notice <span className="font-medium">“Holiday Schedule – November 2025”</span>{" "}
           has been published and is now visible to all selected departments.
@@ -32,7 +29,7 @@ const SuccessModal = ({ isOpen, onClose }) => {
 
         <div className="flex items-center justify-center gap-3">
           <button
-            onClick={() => navigate("/notice-board")}
+            onClick={() => navigate("/")}
             className="px-4 py-2 rounded-full border border-blue-500 text-blue-600 text-sm font-medium hover:bg-blue-50 transition"
           >
             View Notice
@@ -58,7 +55,5 @@ const SuccessModal = ({ isOpen, onClose }) => {
     </div>
   );
 };
-
-
 
 export default SuccessModal;
