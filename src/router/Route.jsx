@@ -3,7 +3,6 @@ import MainLayout from "../Layout/MainLayout";
 import Home from "../Pages/Home";
 import CreateNoticePage from "../Pages/CreateNoticePage";
 
-// import NoticeListPage from "../Pages/NoticeListPage";
 
 export const router = createBrowserRouter([
     {
@@ -17,11 +16,7 @@ export const router = createBrowserRouter([
             {
                 path: 'create',
                 element: <CreateNoticePage />
-            },
-            // {
-            //     path: 'notices',
-            //     element: <NoticeListPage />
-            // }
+            }
         ]
     }
 ]);
